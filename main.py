@@ -6,7 +6,7 @@ import logging
 from aiohttp import web
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
-from aiogram.types import FSInputFile, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import FSInputFile, BotCommand
 
 logging.basicConfig(level=logging.INFO)
 
@@ -51,7 +51,12 @@ CARDS = [
     {"id": "card18", "title": "Соня разьебаная лемоном", "rarity": "Эпический 🟣", "weight": 15, "filename": "card18.jpg"},
     {"id": "card19", "title": "Соня яндере", "rarity": "Эпический 🟣", "weight": 15, "filename": "card19.jpg"},
     {"id": "card20", "title": "Ева котость", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card20.jpg"},
-    {"id": "card21", "title": "Секретный предмет", "rarity": "Секретный ❓", "weight": 1, "filename": "card21.jpg"}
+    {"id": "card21", "title": "Секретный предмет", "rarity": "Секретный ❓", "weight": 1, "filename": "card21.jpg"},
+    
+    # --- НОВЫЕ КАРТОЧКИ ---
+    {"id": "card22", "title": "Ева котик", "rarity": "Обычный ⚪", "weight": 50, "filename": "card22.jpg"},
+    {"id": "card23", "title": "Максим детектив", "rarity": "Редкий 🔵", "weight": 30, "filename": "card23.jpg"},
+    {"id": "card24", "title": "Соня королева", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card24.jpg"}
 ]
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
