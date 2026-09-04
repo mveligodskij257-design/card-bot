@@ -3,6 +3,7 @@ import random
 import os
 import time
 import logging
+from aiohttp import web
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import FSInputFile, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
@@ -18,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 user_cooldowns = {}
 user_inventories = {}
-COOLDOWN_TIME = 7200  # 2 години в секундах
+COOLDOWN_TIME = 7200  # 2 часа в секундах
 
 CARDS = [
     {"id": "card1", "title": "Максим Тайлер Дерден", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card1.jpg"},
@@ -35,7 +36,20 @@ CARDS = [
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
 
-# Головне меню з кнопками дій
+# --- ВЕБ-СЕРВЕР ДЛЯ СТАБИЛЬНОГО СТАТУСА LIVE НА RENDER ---
+async def handle(request):
+    return web.Response(text="Card Bot is running 24/7!")
+
+async def start_website():
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 10000))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+# --- МЕНЮ И КНОПКИ ---
 def get_main_keyboard():
     buttons = [
         [
@@ -53,7 +67,7 @@ async def set_main_menu(bot: Bot):
     ]
     await bot.set_my_commands(main_menu_commands)
 
-# Логіка виконання пошуку
+# --- ЛОГИКА ПОИСКА ---
 async def perform_find(user_id: int, user_name: str, message: types.Message):
     current_time = time.time()
     
@@ -102,7 +116,7 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
     else:
         await message.answer(f"⚠️ Файл {card['filename']} не найден!\n\n{caption}", parse_mode="HTML", reply_markup=get_main_keyboard())
 
-# Логіка відображення інвентарю
+# --- ЛОГИКА ИНВЕНТАРЯ ---
 async def perform_inventory(user_id: int, user_name: str, message: types.Message):
     if user_id not in user_inventories or not user_inventories[user_id]:
         await message.answer(
@@ -131,7 +145,7 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
 
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
 
-# Обробка команд /start, /cdfind, /inventory
+# --- ОБРАБОТКА КОМАНД ---
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     await message.answer(
@@ -148,7 +162,7 @@ async def cmd_find_msg(message: types.Message):
 async def cmd_inventory_msg(message: types.Message):
     await perform_inventory(message.from_user.id, message.from_user.first_name, message)
 
-# Обробка дій за кнопками
+# --- ОБРАБОТКА ИНЛАЙН-КНОПОК ---
 @dp.callback_query(F.data == "action_find")
 async def cb_find(callback: types.CallbackQuery):
     await callback.answer()
@@ -159,8 +173,10 @@ async def cb_inventory(callback: types.CallbackQuery):
     await callback.answer()
     await perform_inventory(callback.from_user.id, callback.from_user.first_name, callback.message)
 
+# --- ГЛАВНАЯ ТОЧКА ВХОДА ---
 async def main():
     await set_main_menu(bot)
+    await start_website()  # Запуск веб-сервера для Render
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
