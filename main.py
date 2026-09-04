@@ -21,13 +21,13 @@ user_cooldowns = {}
 user_inventories = {}
 COOLDOWN_TIME = 7200  # 2 часа в секундах
 
-# Порядок редкости от обычного к легендарному
+# Порядок редкости от обычного к секретному
 RARITY_ORDER = {
     "Обычный ⚪": 1,
     "Редкий 🔵": 2,
     "Эпический 🟣": 3,
-    "Епический 🟣": 3,  # учтена возможная опечатка
-    "Легендарный 🟡": 4
+    "Легендарный 🟡": 4,
+    "Секретный ❓": 5
 }
 
 CARDS = [
@@ -50,12 +50,12 @@ CARDS = [
     {"id": "card17", "title": "Максим гитлер", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card17.jpg"},
     {"id": "card18", "title": "Соня разьебаная лемоном", "rarity": "Эпический 🟣", "weight": 15, "filename": "card18.jpg"},
     {"id": "card19", "title": "Соня яндере", "rarity": "Эпический 🟣", "weight": 15, "filename": "card19.jpg"},
-    {"id": "card20", "title": "Ева котость", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card20.jpg"}
+    {"id": "card20", "title": "Ева котость", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card20.jpg"},
+    {"id": "card21", "title": "Секретный предмет", "rarity": "Секретный ❓", "weight": 1, "filename": "card21.jpg"}
 ]
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
 
-# Вспомогательная функция для получения приоритета редкости
 def get_card_rarity_rank(card):
     return RARITY_ORDER.get(card["rarity"], 99)
 
@@ -129,9 +129,15 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
     chance_percent = round((card["weight"] / TOTAL_WEIGHT) * 100, 1)
     image_path = os.path.join(BASE_DIR, "images", card["filename"])
 
+    # Если выпала секретная карточка, выводится текст «мусор дроп»
+    if card["rarity"] == "Секретный ❓":
+        find_text = "🗑️ Вы нашли: <b>мусор дроп</b>!"
+    else:
+        find_text = f"🔎 Вы нашли карточку «<b>{card['title']}</b>»!"
+
     caption = (
         f"<b>{user_name}</b>,\n"
-        f"🔎 Вы нашли карточку «<b>{card['title']}</b>»!\n\n"
+        f"{find_text}\n\n"
         f"✨ <b>Редкость:</b> {card['rarity']}\n"
         f"📊 <b>Шанс выпадения:</b> {chance_percent}%\n\n"
         f"📦 Карта добавлена в ваш инвентарь!"
@@ -143,7 +149,7 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
     else:
         await message.answer(f"⚠️ Файл {card['filename']} не найден!\n\n{caption}", parse_mode="HTML", reply_markup=get_main_keyboard())
 
-# --- ЛОГИКА ИНВЕНТАРЯ (с сортировкой от Обычного к Легендарному) ---
+# --- ЛОГИКА ИНВЕНТАРЯ ---
 async def perform_inventory(user_id: int, user_name: str, message: types.Message):
     if user_id not in user_inventories or not user_inventories[user_id]:
         await message.answer(
@@ -160,7 +166,6 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
     text = f"🎒 <b>Инвентарь {user_name}:</b>\n"
     text += f"Всего найдено карт: <b>{total_found}</b>\n\n"
 
-    # Сортируем список карточек по их редкости
     sorted_cards = sorted(CARDS, key=get_card_rarity_rank)
 
     for card in sorted_cards:
@@ -175,12 +180,11 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
 
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
 
-# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК (с сортировкой от Обычного к Легендарному) ---
+# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК ---
 async def perform_listcard(message: types.Message):
     text = f"📜 <b>Список всех доступных карточек ({len(CARDS)} шт.):</b>\n"
-    text += "<i>(Отсортировано от Обычных к Легендарным)</i>\n\n"
+    text += "<i>(Отсортировано от Обычных к Секретным)</i>\n\n"
     
-    # Сортируем карточки перед выводом
     sorted_cards = sorted(CARDS, key=get_card_rarity_rank)
     
     for idx, card in enumerate(sorted_cards, start=1):
