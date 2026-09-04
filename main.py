@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 user_cooldowns = {}
 user_inventories = {}
-COOLDOWN_TIME = 7200# 2 чеса в секундах
+COOLDOWN_TIME = 7200  # 2 часа в секундах
 
 CARDS = [
     {"id": "card1", "title": "Максим Тайлер Дерден", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card1.jpg"},
@@ -33,14 +33,14 @@ CARDS = [
     {"id": "card9", "title": "Ева Gandonio", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card9.jpg"},
     {"id": "card10", "title": "Ева чикатило", "rarity": "Эпический 🟣", "weight": 15, "filename": "card10.jpg"},
     {"id": "card11", "title": "Ева тюльпан", "rarity": "Обычный ⚪", "weight": 50, "filename": "card11.jpg"},
-    {"id": "card12", "title": "Соня гимнастка", "rarity": "Епический 🟣", "weight": 15, "filename": "card12.jpg"},
+    {"id": "card12", "title": "Соня гимнастка", "rarity": "Эпический 🟣", "weight": 15, "filename": "card12.jpg"},
     {"id": "card13", "title": "Ева пляшко праголино", "rarity": "Редкий 🔵", "weight": 30, "filename": "card13.jpg"},
-    {"id": "card14", "title": "Соня тоска", "rarity": "Епический 🟣", "weight": 15, "filename": "card14.jpg"},
+    {"id": "card14", "title": "Соня тоска", "rarity": "Эпический 🟣", "weight": 15, "filename": "card14.jpg"},
     {"id": "card15", "title": "Соня ЖД знак", "rarity": "Эпический 🟣", "weight": 15, "filename": "card15.jpg"},
     {"id": "card16", "title": "Максим разьебало о лемона", "rarity": "Эпический 🟣", "weight": 15, "filename": "card16.jpg"},
     {"id": "card17", "title": "Максим гитлер", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card17.jpg"},
-    {"id": "card18", "title": "Соня разьебаная лемоном", "rarity": "Епический 🟣", "weight": 15, "filename": "card18.jpg"},
-    {"id": "card19", "title": "Соня яндере", "rarity": "Епический 🟣", "weight": 15, "filename": "card19.jpg"},
+    {"id": "card18", "title": "Соня разьебаная лемоном", "rarity": "Эпический 🟣", "weight": 15, "filename": "card18.jpg"},
+    {"id": "card19", "title": "Соня яндере", "rarity": "Эпический 🟣", "weight": 15, "filename": "card19.jpg"},
     {"id": "card20", "title": "Ева котость", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card20.jpg"}
 ]
 
@@ -65,6 +65,9 @@ def get_main_keyboard():
         [
             InlineKeyboardButton(text="🔎 Искать карточку", callback_data="action_find"),
             InlineKeyboardButton(text="🎒 Инвентарь", callback_data="action_inventory")
+        ],
+        [
+            InlineKeyboardButton(text="📜 Список всех карточек", callback_data="action_listcard")
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -73,7 +76,8 @@ async def set_main_menu(bot: Bot):
     main_menu_commands = [
         BotCommand(command="start", description="Головне меню"),
         BotCommand(command="cdfind", description="Пошук нових карток"),
-        BotCommand(command="inventory", description="Ваш інвентар")
+        BotCommand(command="inventory", description="Ваш інвентар"),
+        BotCommand(command="listcard", description="Список усіх карток")
     ]
     await bot.set_my_commands(main_menu_commands)
 
@@ -155,6 +159,19 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
 
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
 
+# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК ---
+async def perform_listcard(message: types.Message):
+    text = f"📜 <b>Список всех доступных карточек ({len(CARDS)} шт.):</b>\n\n"
+    
+    for idx, card in enumerate(CARDS, start=1):
+        chance_percent = round((card["weight"] / TOTAL_WEIGHT) * 100, 1)
+        text += (
+            f"<b>{idx}. {card['title']}</b>\n"
+            f"   └ Редкость: {card['rarity']} | Шанс: <b>{chance_percent}%</b>\n"
+        )
+        
+    await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
+
 # --- ОБРАБОТКА КОМАНД ---
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
@@ -172,6 +189,10 @@ async def cmd_find_msg(message: types.Message):
 async def cmd_inventory_msg(message: types.Message):
     await perform_inventory(message.from_user.id, message.from_user.first_name, message)
 
+@dp.message(Command("listcard"))
+async def cmd_listcard_msg(message: types.Message):
+    await perform_listcard(message)
+
 # --- ОБРАБОТКА ИНЛАЙН-КНОПОК ---
 @dp.callback_query(F.data == "action_find")
 async def cb_find(callback: types.CallbackQuery):
@@ -182,6 +203,11 @@ async def cb_find(callback: types.CallbackQuery):
 async def cb_inventory(callback: types.CallbackQuery):
     await callback.answer()
     await perform_inventory(callback.from_user.id, callback.from_user.first_name, callback.message)
+
+@dp.callback_query(F.data == "action_listcard")
+async def cb_listcard(callback: types.CallbackQuery):
+    await callback.answer()
+    await perform_listcard(callback.message)
 
 # --- ГЛАВНАЯ ТОЧКА ВХОДА ---
 async def main():
