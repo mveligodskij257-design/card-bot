@@ -26,6 +26,7 @@ RARITY_ORDER = {
     "Обычный ⚪": 1,
     "Редкий 🔵": 2,
     "Эпический 🟣": 3,
+    "Епический 🟣": 3,
     "Легендарный 🟡": 4,
     "Секретный ❓": 5
 }
@@ -129,7 +130,6 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
     chance_percent = round((card["weight"] / TOTAL_WEIGHT) * 100, 1)
     image_path = os.path.join(BASE_DIR, "images", card["filename"])
 
-    # Если выпала секретная карточка, выводится текст «мусор дроп»
     if card["rarity"] == "Секретный ❓":
         find_text = "🗑️ Вы нашли: <b>мусор дроп</b>!"
     else:
@@ -180,7 +180,7 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
 
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
 
-# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК ---
+# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК (ОТВЕТ БЕЗ КНОПОК) ---
 async def perform_listcard(message: types.Message):
     text = f"📜 <b>Список всех доступных карточек ({len(CARDS)} шт.):</b>\n"
     text += "<i>(Отсортировано от Обычных к Секретным)</i>\n\n"
@@ -194,7 +194,8 @@ async def perform_listcard(message: types.Message):
             f"   └ Редкость: {card['rarity']} | Шанс: <b>{chance_percent}%</b>\n"
         )
         
-    await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
+    # Кнопки не передаются, сообщение будет чистым текстом
+    await message.answer(text, parse_mode="HTML")
 
 # --- ОБРАБОТКА КОМАНД ---
 @dp.message(Command("start"))
@@ -236,7 +237,7 @@ async def cb_listcard(callback: types.CallbackQuery):
 # --- ГЛАВНАЯ ТОЧКА ВХОДА ---
 async def main():
     await set_main_menu(bot)
-    await start_website()  # Запуск веб-сервера для Render
+    await start_website()
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
