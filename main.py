@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 user_cooldowns = {}
 user_inventories = {}
-COOLDOWN_TIME = 7200  # 2 часа в секундах
+COOLDOWN_TIME = 3600  # 1 час в секундах (было 7200)
 
 RARITY_ORDER = {
     "Обычный ⚪": 1,
@@ -52,11 +52,9 @@ CARDS = [
     {"id": "card19", "title": "Соня яндере", "rarity": "Эпический 🟣", "weight": 15, "filename": "card19.jpg"},
     {"id": "card20", "title": "Ева котость", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card20.jpg"},
     {"id": "card21", "title": "Секретный предмет", "rarity": "Секретный ❓", "weight": 1, "filename": "card21.jpg"},
-    
-    # --- НОВЫЕ КАРТОЧКИ ---
-    {"id": "card22", "title": "Лиза ручка", "rarity": "Обычный ⚪", "weight": 50, "filename": "card24.jpg"},
-    {"id": "card23", "title": "Лиза парализация лица", "rarity": "Редкий 🔵", "weight": 30, "filename": "card23.jpg"},
-    {"id": "card24", "title": "Лиза кошко-девочка", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card22.jpg"}
+    {"id": "card22", "title": "Ева котик", "rarity": "Обычный ⚪", "weight": 50, "filename": "card22.jpg"},
+    {"id": "card23", "title": "Максим детектив", "rarity": "Редкий 🔵", "weight": 30, "filename": "card23.jpg"},
+    {"id": "card24", "title": "Соня королева", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card24.jpg"}
 ]
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
@@ -100,7 +98,7 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
             time_str = f"{hours} ч. {minutes} мин. {seconds} сек." if hours > 0 else f"{minutes} мин. {seconds} сек."
             
             await message.answer(
-                f"⏳ <b>{user_name}</b>, искать карточки можно только раз в 2 часа!\n"
+                f"⏳ <b>{user_name}</b>, искать карточки можно только раз в 1 час!\n"
                 f"Следующая попытка доступна через: <b>{time_str}</b>",
                 parse_mode="HTML",
                 reply_to_message_id=message.message_id
