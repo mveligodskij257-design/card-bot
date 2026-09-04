@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 user_cooldowns = {}
 user_inventories = {}
-COOLDOWN_TIME = 5# 5 секунд в секундах
+COOLDOWN_TIME = 7200# 2 чеса в секундах
 
 CARDS = [
     {"id": "card1", "title": "Максим Тайлер Дерден", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card1.jpg"},
