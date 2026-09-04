@@ -31,7 +31,17 @@ CARDS = [
     {"id": "card7", "title": "Соня ручка", "rarity": "Обычный ⚪", "weight": 50, "filename": "card7.jpg"},
     {"id": "card8", "title": "Лиза крутая", "rarity": "Редкий 🔵", "weight": 30, "filename": "card8.jpg"},
     {"id": "card9", "title": "Ева Gandonio", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card9.jpg"},
-    {"id": "card10", "title": "Ева чикатило", "rarity": "Эпический 🟣", "weight": 15, "filename": "card10.jpg"}
+    {"id": "card10", "title": "Ева чикатило", "rarity": "Эпический 🟣", "weight": 15, "filename": "card10.jpg"},
+    {"id": "card11", "title": "Ева тюльпан", "rarity": "Обычный ⚪", "weight": 50, "filename": "card11.jpg"},
+    {"id": "card12", "title": "Соня гимнастка", "rarity": "Епический 🟣", "weight": 15, "filename": "card12.jpg"},
+    {"id": "card13", "title": "Ева пляшко праголино", "rarity": "Редкий 🔵", "weight": 30, "filename": "card13.jpg"},
+    {"id": "card14", "title": "Соня тоска", "rarity": "Епический 🟣", "weight": 15, "filename": "card14.jpg"},
+    {"id": "card15", "title": "Соня ЖД знак", "rarity": "Эпический 🟣", "weight": 15, "filename": "card15.jpg"},
+    {"id": "card16", "title": "Максим разьебало о лемона", "rarity": "Эпический 🟣", "weight": 15, "filename": "card16.jpg"},
+    {"id": "card17", "title": "Максим гитлер", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card17.jpg"},
+    {"id": "card18", "title": "Соня разьебаная лемоном", "rarity": "Епический 🟣", "weight": 15, "filename": "card18.jpg"},
+    {"id": "card19", "title": "Соня яндере", "rarity": "Епический 🟣", "weight": 15, "filename": "card19.jpg"},
+    {"id": "card20", "title": "Ева котость", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card20.jpg"}
 ]
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
