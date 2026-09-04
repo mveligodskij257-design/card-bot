@@ -21,6 +21,15 @@ user_cooldowns = {}
 user_inventories = {}
 COOLDOWN_TIME = 7200  # 2 часа в секундах
 
+# Порядок редкости от обычного к легендарному
+RARITY_ORDER = {
+    "Обычный ⚪": 1,
+    "Редкий 🔵": 2,
+    "Эпический 🟣": 3,
+    "Епический 🟣": 3,  # учтена возможная опечатка
+    "Легендарный 🟡": 4
+}
+
 CARDS = [
     {"id": "card1", "title": "Максим Тайлер Дерден", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card1.jpg"},
     {"id": "card2", "title": "Максим инспектор", "rarity": "Эпический 🟣", "weight": 15, "filename": "card2.jpg"},
@@ -45,6 +54,10 @@ CARDS = [
 ]
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
+
+# Вспомогательная функция для получения приоритета редкости
+def get_card_rarity_rank(card):
+    return RARITY_ORDER.get(card["rarity"], 99)
 
 # --- ВЕБ-СЕРВЕР ДЛЯ СТАБИЛЬНОГО СТАТУСА LIVE НА RENDER ---
 async def handle(request):
@@ -130,7 +143,7 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
     else:
         await message.answer(f"⚠️ Файл {card['filename']} не найден!\n\n{caption}", parse_mode="HTML", reply_markup=get_main_keyboard())
 
-# --- ЛОГИКА ИНВЕНТАРЯ ---
+# --- ЛОГИКА ИНВЕНТАРЯ (с сортировкой от Обычного к Легендарному) ---
 async def perform_inventory(user_id: int, user_name: str, message: types.Message):
     if user_id not in user_inventories or not user_inventories[user_id]:
         await message.answer(
@@ -147,7 +160,10 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
     text = f"🎒 <b>Инвентарь {user_name}:</b>\n"
     text += f"Всего найдено карт: <b>{total_found}</b>\n\n"
 
-    for card in CARDS:
+    # Сортируем список карточек по их редкости
+    sorted_cards = sorted(CARDS, key=get_card_rarity_rank)
+
+    for card in sorted_cards:
         card_id = card["id"]
         if card_id in user_cards:
             count = user_cards[card_id]
@@ -159,11 +175,15 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
 
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
 
-# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК ---
+# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК (с сортировкой от Обычного к Легендарному) ---
 async def perform_listcard(message: types.Message):
-    text = f"📜 <b>Список всех доступных карточек ({len(CARDS)} шт.):</b>\n\n"
+    text = f"📜 <b>Список всех доступных карточек ({len(CARDS)} шт.):</b>\n"
+    text += "<i>(Отсортировано от Обычных к Легендарным)</i>\n\n"
     
-    for idx, card in enumerate(CARDS, start=1):
+    # Сортируем карточки перед выводом
+    sorted_cards = sorted(CARDS, key=get_card_rarity_rank)
+    
+    for idx, card in enumerate(sorted_cards, start=1):
         chance_percent = round((card["weight"] / TOTAL_WEIGHT) * 100, 1)
         text += (
             f"<b>{idx}. {card['title']}</b>\n"
