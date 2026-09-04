@@ -21,7 +21,6 @@ user_cooldowns = {}
 user_inventories = {}
 COOLDOWN_TIME = 7200  # 2 часа в секундах
 
-# Порядок редкости от обычного к секретному
 RARITY_ORDER = {
     "Обычный ⚪": 1,
     "Редкий 🔵": 2,
@@ -60,7 +59,7 @@ TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
 def get_card_rarity_rank(card):
     return RARITY_ORDER.get(card["rarity"], 99)
 
-# --- ВЕБ-СЕРВЕР ДЛЯ СТАБИЛЬНОГО СТАТУСА LIVE НА RENDER ---
+# --- ВЕБ-СЕРВЕР ---
 async def handle(request):
     return web.Response(text="Card Bot is running 24/7!")
 
@@ -73,29 +72,16 @@ async def start_website():
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
 
-# --- МЕНЮ И КНОПКИ ---
-def get_main_keyboard():
-    buttons = [
-        [
-            InlineKeyboardButton(text="🔎 Искать карточку", callback_data="action_find"),
-            InlineKeyboardButton(text="🎒 Инвентарь", callback_data="action_inventory")
-        ],
-        [
-            InlineKeyboardButton(text="📜 Список всех карточек", callback_data="action_listcard")
-        ]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
 async def set_main_menu(bot: Bot):
     main_menu_commands = [
-        BotCommand(command="start", description="Головне меню"),
-        BotCommand(command="cdfind", description="Пошук нових карток"),
-        BotCommand(command="inventory", description="Ваш інвентар"),
-        BotCommand(command="listcard", description="Список усіх карток")
+        BotCommand(command="start", description="Главное меню"),
+        BotCommand(command="cdfind", description="Поиск новых карточек"),
+        BotCommand(command="inventory", description="Ваш инвентарь"),
+        BotCommand(command="listcard", description="Список всех карточек")
     ]
     await bot.set_my_commands(main_menu_commands)
 
-# --- ЛОГИКА ПОИСКА ---
+# --- ЛОГИКА ПОИСКА (Ответ цитированием, без кнопок) ---
 async def perform_find(user_id: int, user_name: str, message: types.Message):
     current_time = time.time()
     
@@ -112,7 +98,7 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
                 f"⏳ <b>{user_name}</b>, искать карточки можно только раз в 2 часа!\n"
                 f"Следующая попытка доступна через: <b>{time_str}</b>",
                 parse_mode="HTML",
-                reply_markup=get_main_keyboard()
+                reply_to_message_id=message.message_id
             )
             return
 
@@ -145,18 +131,27 @@ async def perform_find(user_id: int, user_name: str, message: types.Message):
     
     if os.path.exists(image_path):
         photo = FSInputFile(image_path)
-        await message.answer_photo(photo=photo, caption=caption, parse_mode="HTML", reply_markup=get_main_keyboard())
+        await message.answer_photo(
+            photo=photo, 
+            caption=caption, 
+            parse_mode="HTML", 
+            reply_to_message_id=message.message_id
+        )
     else:
-        await message.answer(f"⚠️ Файл {card['filename']} не найден!\n\n{caption}", parse_mode="HTML", reply_markup=get_main_keyboard())
+        await message.answer(
+            f"⚠️ Файл {card['filename']} не найден!\n\n{caption}", 
+            parse_mode="HTML", 
+            reply_to_message_id=message.message_id
+        )
 
-# --- ЛОГИКА ИНВЕНТАРЯ ---
+# --- ЛОГИКА ИНВЕНТАРЯ (Ответ цитированием, без кнопок) ---
 async def perform_inventory(user_id: int, user_name: str, message: types.Message):
     if user_id not in user_inventories or not user_inventories[user_id]:
         await message.answer(
             f"📦 <b>{user_name}</b>, ваш инвентарь пуст!\n"
-            f"Нажмите кнопку ниже, чтобы найти первую карточку.",
+            f"Используйте команду /cdfind, чтобы найти первую карточку.",
             parse_mode="HTML",
-            reply_markup=get_main_keyboard()
+            reply_to_message_id=message.message_id
         )
         return
 
@@ -178,9 +173,13 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
                 f"  └ Редкость: {card['rarity']} ({chance_percent}%)\n"
             )
 
-    await message.answer(text, parse_mode="HTML", reply_markup=get_main_keyboard())
+    await message.answer(
+        text, 
+        parse_mode="HTML", 
+        reply_to_message_id=message.message_id
+    )
 
-# --- ЛОГИКА СПИСКА ВСЕХ КАРТОЧЕК (ОТВЕТ БЕЗ КНОПОК) ---
+# --- ЛОГИКА СПИСКА КАРТОЧЕК (Ответ цитированием, без кнопок) ---
 async def perform_listcard(message: types.Message):
     text = f"📜 <b>Список всех доступных карточек ({len(CARDS)} шт.):</b>\n"
     text += "<i>(Отсортировано от Обычных к Секретным)</i>\n\n"
@@ -194,16 +193,19 @@ async def perform_listcard(message: types.Message):
             f"   └ Редкость: {card['rarity']} | Шанс: <b>{chance_percent}%</b>\n"
         )
         
-    # Кнопки не передаются, сообщение будет чистым текстом
-    await message.answer(text, parse_mode="HTML")
+    await message.answer(
+        text, 
+        parse_mode="HTML", 
+        reply_to_message_id=message.message_id
+    )
 
 # --- ОБРАБОТКА КОМАНД ---
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     await message.answer(
-        f"Привет, <b>{message.from_user.first_name}</b>! Выбери действие:",
+        f"Привет, <b>{message.from_user.first_name}</b>! Используй команды в меню Telegram для взаимодействия с ботом.",
         parse_mode="HTML",
-        reply_markup=get_main_keyboard()
+        reply_to_message_id=message.message_id
     )
 
 @dp.message(Command("cdfind"))
@@ -217,22 +219,6 @@ async def cmd_inventory_msg(message: types.Message):
 @dp.message(Command("listcard"))
 async def cmd_listcard_msg(message: types.Message):
     await perform_listcard(message)
-
-# --- ОБРАБОТКА ИНЛАЙН-КНОПОК ---
-@dp.callback_query(F.data == "action_find")
-async def cb_find(callback: types.CallbackQuery):
-    await callback.answer()
-    await perform_find(callback.from_user.id, callback.from_user.first_name, callback.message)
-
-@dp.callback_query(F.data == "action_inventory")
-async def cb_inventory(callback: types.CallbackQuery):
-    await callback.answer()
-    await perform_inventory(callback.from_user.id, callback.from_user.first_name, callback.message)
-
-@dp.callback_query(F.data == "action_listcard")
-async def cb_listcard(callback: types.CallbackQuery):
-    await callback.answer()
-    await perform_listcard(callback.message)
 
 # --- ГЛАВНАЯ ТОЧКА ВХОДА ---
 async def main():
