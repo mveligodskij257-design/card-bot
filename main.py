@@ -85,8 +85,7 @@ async def set_main_menu(bot: Bot):
     main_menu_commands = [
         BotCommand(command="start", description="Главное меню"),
         BotCommand(command="cdfind", description="Поиск новых карточек"),
-        BotCommand(command="inventory", description="Ваш инвентарь"),
-        BotCommand(command="listcard", description="Список всех карточек")
+        BotCommand(command="inventory", description="Ваш инвентарь")
     ]
     await bot.set_my_commands(main_menu_commands)
 
@@ -188,26 +187,6 @@ async def perform_inventory(user_id: int, user_name: str, message: types.Message
         reply_to_message_id=message.message_id
     )
 
-# --- ЛОГИКА СПИСКА КАРТОЧЕК (Ответ цитированием, без кнопок) ---
-async def perform_listcard(message: types.Message):
-    text = f"📜 <b>Список всех доступных карточек ({len(CARDS)} шт.):</b>\n"
-    text += "<i>(Отсортировано от Обычных к Секретным)</i>\n\n"
-    
-    sorted_cards = sorted(CARDS, key=get_card_rarity_rank)
-    
-    for idx, card in enumerate(sorted_cards, start=1):
-        chance_percent = round((card["weight"] / TOTAL_WEIGHT) * 100, 1)
-        text += (
-            f"<b>{idx}. {card['title']}</b>\n"
-            f"   └ Редкость: {card['rarity']} | Шанс: <b>{chance_percent}%</b>\n"
-        )
-        
-    await message.answer(
-        text, 
-        parse_mode="HTML", 
-        reply_to_message_id=message.message_id
-    )
-
 # --- ОБРАБОТКА КОМАНД ---
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
@@ -224,10 +203,6 @@ async def cmd_find_msg(message: types.Message):
 @dp.message(Command("inventory"))
 async def cmd_inventory_msg(message: types.Message):
     await perform_inventory(message.from_user.id, message.from_user.first_name, message)
-
-@dp.message(Command("listcard"))
-async def cmd_listcard_msg(message: types.Message):
-    await perform_listcard(message)
 
 # --- ГЛАВНАЯ ТОЧКА ВХОДА ---
 async def main():
