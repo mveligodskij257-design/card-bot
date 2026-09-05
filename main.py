@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 user_cooldowns = {}
 user_inventories = {}
-COOLDOWN_TIME = 3600  # 1 час в секундах (было 7200)
+COOLDOWN_TIME = 3600  # 1 час в секундах
 
 RARITY_ORDER = {
     "Обычный ⚪": 1,
@@ -54,7 +54,13 @@ CARDS = [
     {"id": "card21", "title": "Секретный предмет", "rarity": "Секретный ❓", "weight": 1, "filename": "card21.jpg"},
     {"id": "card22", "title": "Лиза кошко-девочка", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card22.jpg"},
     {"id": "card23", "title": "Лиза парализация лица", "rarity": "Редкий 🔵", "weight": 30, "filename": "card23.jpg"},
-    {"id": "card24", "title": "Лиза ручка", "rarity": "Обычный ⚪", "weight": 50, "filename": "card24.jpg"}
+    {"id": "card24", "title": "Лиза ручка", "rarity": "Обычный ⚪", "weight": 50, "filename": "card24.jpg"},
+    {"id": "card25", "title": "Люба mogg", "rarity": "Эпический 🟣", "weight": 15, "filename": "card25.jpg"},
+    {"id": "card26", "title": "Люба зайчик джудихопс", "rarity": "Обычный ⚪", "weight": 50, "filename": "card26.jpg"},
+    {"id": "card27", "title": "Люба HOG RIDER", "rarity": "Редкий 🔵", "weight": 30, "filename": "card27.jpg"},
+    {"id": "card28", "title": "Люба язагит лера", "rarity": "Эпический 🟣", "weight": 15, "filename": "card28.jpg"},
+    {"id": "card29", "title": "Люба намазный", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card29.jpg"},
+    {"id": "card30", "title": "Люба молодожен", "rarity": "Редкий 🔵", "weight": 5, "filename": "card30.jpg"}
 ]
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
