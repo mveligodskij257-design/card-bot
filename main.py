@@ -52,9 +52,9 @@ CARDS = [
     {"id": "card19", "title": "Соня яндере", "rarity": "Эпический 🟣", "weight": 15, "filename": "card19.jpg"},
     {"id": "card20", "title": "Ева котость", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card20.jpg"},
     {"id": "card21", "title": "Секретный предмет", "rarity": "Секретный ❓", "weight": 1, "filename": "card21.jpg"},
-    {"id": "card22", "title": "Ева котик", "rarity": "Обычный ⚪", "weight": 50, "filename": "card22.jpg"},
-    {"id": "card23", "title": "Максим детектив", "rarity": "Редкий 🔵", "weight": 30, "filename": "card23.jpg"},
-    {"id": "card24", "title": "Соня королева", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card24.jpg"}
+    {"id": "card22", "title": "Лиза кошко-девочка", "rarity": "Легендарный 🟡", "weight": 5, "filename": "card22.jpg"},
+    {"id": "card23", "title": "Лиза парализация лица", "rarity": "Редкий 🔵", "weight": 30, "filename": "card23.jpg"},
+    {"id": "card24", "title": "Лиза ручка", "rarity": "Обычный ⚪", "weight": 50, "filename": "card24.jpg"}
 ]
 
 TOTAL_WEIGHT = sum(card["weight"] for card in CARDS)
